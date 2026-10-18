@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}{{ movie.title }}{% endblock %}
+
+{% block content %}
+  <div class="card">
+    <h1>{{ movie.title }}</h1>
+    <div>
+      {% for g in movie.genre_list %}<span class="tag">{{ g }}</span>{% endfor %}
+    </div>
+    <p>
+      Average rating: <strong>{{ stats.avg|floatformat:2|default:"–" }}</strong>
+      <span class="muted">({{ stats.count }} ratings)</span>
+    </p>
+
+    <hr>
+
+    {% if user.is_authenticated %}
+      {% if user_rating %}
+        <p>Your rating: <strong>{{ user_rating.score }}</strong></p>
+      {% endif %}
+      <form method="post" action="{% url 'rate_movie' movie.movie_id %}">
+        {% csrf_token %}
+        <select name="score">
+          <option value="">Choose rating</option>
+          {% for choice in score_choices %}
+            <option value="{{ choice }}"
+              {% if user_rating and user_rating.score == choice %}selected{% endif %}>
+              {{ choice }} ★
+            </option>
+          {% endfor %}
+        </select>
+        <button class="primary" type="submit">
+          {% if user_rating %}Update rating{% else %}Rate{% endif %}
+        </button>
+      </form>
+    {% else %}
+      <p><a href="{% url 'login' %}?next={{ request.path }}">Log in</a> to rate this movie.</p>
+    {% endif %}
+  </div>
+
+  {% if similar %}
+    <h2 style="margin-top: 24px;">Similar movies</h2>
+    <div class="grid">
+      {% for m in similar %}
+        <div class="card">
+          <a href="{% url 'movie_detail' m.movie_id %}">{{ m.title }}</a>
+          <div>
+            {% for g in m.genre_list %}<span class="tag">{{ g }}</span>{% endfor %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <p><a href="{% url 'movie_list' %}">← Back to movies</a></p>
+{% endblock %}

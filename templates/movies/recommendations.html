@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Recommended for you{% endblock %}
+
+{% block content %}
+  <h1>Recommended for you</h1>
+
+  {% if source == "svd" %}
+    <p class="muted">Personalized from your ratings and users with similar taste.</p>
+  {% else %}
+    <p class="muted">
+      We don't have enough data about your taste yet, so here are popular movies.
+      Rate more movies to get personal picks.
+    </p>
+  {% endif %}
+
+  <div class="grid">
+    {% for m in movies %}
+      <div class="card">
+        <a href="{% url 'movie_detail' m.movie_id %}">{{ m.title }}</a>
+        <div>
+          {% for g in m.genre_list %}<span class="tag">{{ g }}</span>{% endfor %}
+        </div>
+      </div>
+    {% empty %}
+      <p>No recommendations available.</p>
+    {% endfor %}
+  </div>
+{% endblock %}
